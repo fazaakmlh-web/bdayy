@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Agil! 💌 - Scrapbook</title>
+    <!-- Google Fonts untuk Tulisan Tangan Rapi -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@700&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-beige: #f4ece1;
+            --paper-cream: #fdfbf7;
+            --paper-dark: #eee4d5;
+            --kraft-brown: #d4c3ab;
+            --ink-main: #3d3228;
+            --ink-soft: #66584a;
+            --accent-gold: #d4af37;
+            --accent-rose: #c88a8a;
+            --washi-pattern: rgba(212, 195, 171, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-beige);
+            color: var(--ink-main);
+            font-family: 'Patrick Hand', cursive;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-image: radial-gradient(#d4c3ab 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+
+        /* Container & Book Wrapper */
+        .book-container {
+            width: 90vw;
+            max-width: 850px;
+            height: 85vh;
+            max-height: 700px;
+            perspective: 1500px;
+            position: relative;
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: var(--paper-cream);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(61, 50, 40, 0.15), 0 0 0 1px rgba(0,0,0,0.03);
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            overflow-y: auto;
+            transform-origin: left center;
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.6s ease;
+            opacity: 0;
+            pointer-events: none;
+            border: 1px solid var(--kraft-brown);
+        }
+
+        .page.active {
+            opacity: 1;
+            transform: rotateY(0deg);
+            pointer-events: auto;
+            z-index: 5;
+        }
+
+        .page.turned {
+            transform: rotateY(-180deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Washi Tape Effect */
+        .washi-tape {
+            position: absolute;
+            top: -10px;
+            width: 120px;
+            height: 28px;
+            background: rgba(228, 208, 182, 0.7);
+            border-left: 2px dashed rgba(0,0,0,0.1);
+            border-right: 2px dashed rgba(0,0,0,0.1);
+            transform: rotate(-3deg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        h1, h2 {
+            font-family: 'Caveat', cursive;
+            color: var(--ink-main);
+            text-align: center;
+        }
+
+        h1 { font-size: 3rem; margin-bottom: 10px; }
+        h2 { font-size: 2.2rem; color: var(--ink-soft); margin-bottom: 15px; }
+
+        p {
+            font-size: 1.25rem;
+            line-height: 1.5;
+            color: var(--ink-soft);
+            text-align: center;
+        }
+
+        /* Envelope Styles */
+        .envelope-wrapper {
+            position: relative;
+            width: 320px;
+            height: 210px;
+            background: #e6d3bd;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            cursor: pointer;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .envelope-wrapper:hover {
+            transform: scale(1.02);
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 110px solid #d8c1a7;
+            transform-origin: top;
+            transition: transform 0.6s ease;
+            z-index: 3;
+        }
+
+        .envelope-wrapper.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .wax-seal {
+            position: absolute;
+            z-index: 4;
+            width: 55px;
+            height: 55px;
+            background: var(--accent-rose);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border: 2px stroke #b07575;
+            transition: opacity 0.4s ease;
+        }
+
+        .envelope-wrapper.open .wax-seal {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Letter Inside */
+        .letter-content {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            background: #fff;
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transform: translateY(0);
+            transition: transform 0.8s ease, opacity 0.5s ease;
+            opacity: 0;
+            z-index: 2;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .envelope-wrapper.open .letter-content {
+            transform: translateY(-30px);
+            opacity: 1;
+            position: relative;
+            height: auto;
+            width: 100%;
+        }
+
+        /* Star Burst Particles */
+        .star-particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1.5rem;
+            z-index: 999;
+            animation: burst 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes burst {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(0.5) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--dx), var(--dy)) scale(1.5) rotate(360deg);
+            }
+        }
+
+        /* Spotify Player Box */
+        .spotify-box {
+            width: 100%;
+            max-width: 450px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin: 15px 0;
+        }
+
+        /* Navigation Buttons */
+        .nav-controls {
+            position: absolute;
+            bottom: -60px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-scrap {
+            background: var(--kraft-brown);
+            color: var(--ink-main);
+            border: none;
+            padding: 10px 24px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .btn-scrap:hover:not(:disabled) {
+            background: var(--accent-gold);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .btn-scrap:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Grid Cards 100 Reasons */
+        .reasons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            width: 100%;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .reason-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid var(--kraft-brown);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .reason-card::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 40%;
+            width: 30px;
+            height: 12px;
+            background: rgba(200, 138, 138, 0.4);
+        }
+
+        .card-num {
+            font-family: 'Caveat', cursive;
+            font-size: 1.1rem;
+            color: var(--accent-rose);
+            font-weight: bold;
+        }
+
+        .card-txt {
+            font-size: 1rem;
+            color: var(--ink-main);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="book-container">
+        
+        <!-- PAGE 1: Amplop Interaktif -->
+        <div class="page active" id="page-0">
+            <div class="washi-tape"></div>
+            <h1>For My Beloved Agil 💌</h1>
+            <p>Ada surat khusus buat kamu di hari ulang tahunmu. Klik amplop di bawah untuk membukanya!</p>
+
+            <div class="envelope-wrapper" id="envelope" onclick="openEnvelope(event)">
+                <div class="envelope-flap"></div>
+                <div class="wax-seal">Open</div>
+                <div class="letter-content" id="letter">
+                    <h2 style="font-family: 'Dancing Script', cursive;">Happy Birthday, Agil! 🎉</h2>
+                    <p style="margin-top: 10px; font-size: 1.1rem; color: var(--ink-main);">
+                        Selamat ulang tahun ya sayang! Web scrapbook sederhana ini aku buat khusus untuk merayakan hari spesial kamu. Di dalamnya ada peta LDR kita, lagu kesukaan, dan 100 alasan kenapa aku selalu bersyukur punya kamu.
+                    </p>
+                    <p style="margin-top: 10px; font-weight: bold; color: var(--accent-rose);">
+                        Gunakan tombol "Next Page" di bawah untuk mulai membuka halaman scrapbook kita! 💖
+                    </p>
+                </div>
+            </div>
+
+            <p style="font-size: 0.96rem; opacity: 0.7;">✨ Buka amplop dulu untuk lanjut ke halaman berikutnya ✨</p>
+        </div>
+
+        <!-- PAGE 2: Music & LDR Map -->
+        <div class="page" id="page-1">
+            <div class="washi-tape"></div>
+            <h2>An Art Gallery Couldn't Be As Unique As You 🎵</h2>
+            <p>Lagu ini selalu mengingatkan aku sama kamu dan semua momen kebersamaan kita.</p>
+
+            <!-- Embedded Spotify Player -->
+            <div class="spotify-box">
+                <iframe src="https://open.spotify.com/embed/track/22Nd3GuO7sHopPjdKccRcq?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </div>
+
+            <h2 style="margin-top: 10px;">Palembang ⇌ Yogyakarta 📍</h2>
+            <p>Dari titik koordinat tempat kamu bekerja hingga kota kuliahku, jarak hanya sekadar angka.</p>
+
+            <svg viewBox="0 0 600 200" style="width: 100%; max-height: 180px; margin-top: 10px;">
+                <path d="M 100 60 Q 300 80 500 140" fill="none" stroke="#d4af37" stroke-width="2" stroke-dasharray="6,6"/>
+                <!-- Palembang Marker -->
+                <g transform="translate(90, 30)">
+                    <circle cx="15" cy="15" r="8" fill="#c88a8a"/>
+                    <text x="15" y="-5" text-anchor="middle" font-family="'Patrick Hand', cursive" font-size="14" fill="#3d3228" font-weight="bold">Palembang</text>
+                </g>
+                <!-- Jogja Marker -->
+                <g transform="translate(490, 120)">
+                    <circle cx="15" cy="15" r="8" fill="#c88a8a"/>
+                    <text x="15" y="35" text-anchor="middle" font-family="'Patrick Hand', cursive" font-size="14" fill="#3d3228" font-weight="bold">Yogyakarta</text>
+                </g>
+            </svg>
+        </div>
+
+        <!-- PAGE 3: Reasons 1 - 35 -->
+        <div class="page" id="page-2">
+            <div class="washi-tape"></div>
+            <h2>100 Reasons Why I Love You 📜</h2>
+            <div class="reasons-grid" id="grid-1"></div>
+        </div>
+
+        <!-- PAGE 4: Reasons 36 - 70 -->
+        <div class="page" id="page-3">
+            <div class="washi-tape"></div>
+            <h2>100 Reasons Why I Love You 📜</h2>
+            <div class="reasons-grid" id="grid-2"></div>
+        </div>
+
+        <!-- PAGE 5: Reasons 71 - 100 -->
+        <div class="page" id="page-4">
+            <div class="washi-tape"></div>
+            <h2>100 Reasons Why I Love You 📜</h2>
+            <div class="reasons-grid" id="grid-3"></div>
+            <div style="margin-top: 20px; text-align: center;">
+                <p style="font-family: 'Caveat', cursive; font-size: 1.8rem; color: var(--accent-rose);">
+                    I love you so much, Agil! Happy Birthday! ❤️
+                </p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="nav-controls">
+            <button class="btn-scrap" id="prevBtn" onclick="changePage(-1)" disabled>← Prev Page</button>
+            <span id="pageIndicator" style="font-size: 1.1rem; color: var(--ink-soft);">Page 1 of 5</span>
+            <button class="btn-scrap" id="nextBtn" onclick="changePage(1)" disabled>Next Page →</button>
+        </div>
+
+    </div>
+
+    <script>
+        // 100 Reasons Data
+        const reasons = [
+            "Momen pertama kali kita kenal dari game, yang bikin aku sadar kalau jodoh emang bisa ketemu lewat cara tak terduga.",
+            "Cara kamu nyapa dan ngobrol sama aku pertama kali yang langsung bikin nyaman.",
+            "Karena dari sekian banyak orang di game itu, cuma kamu yang berhasil curi perhatian aku.",
+            "Karena kamu jadi pacar pertama aku, sosok yang bikin aku paham indahnya jatuh cinta.",
+            "Keputusan kamu buat nerima aku apa adanya sejak hari pertama.",
+            "Suara kamu di telepon yang selalu bikin rasa capek aku hilang seketika.",
+            "Meskipun kita LDR Yogya–Palembang, kamu selalu bikin jarak terasa jauh lebih dekat.",
+            "Rasa bahagia tiap kali layar HP aku nyala dan ada nama kamu di notifikasi.",
+            "Cara kamu mendengarkan semua cerita aku, bahkan cerita-cerita kecil yang random.",
+            "Karena kamu jadi alasan kenapa aku selalu nungguin jam istirahat atau malam hari buat free time.",
+            "Cara kamu selalu bisa bikin aku ketawa waktu aku lagi pusing sama urusan kuliah.",
+            "Karena kamu bikin aku paham kalau hubungan LDR itu worth it kalau diperjuangkan bareng kamu.",
+            "Kesabaran kamu dalam nemenin dan menghadapi aku dari awal dekat sampai sekarang.",
+            "Kehadiran kamu yang selalu ngisi hari-hari aku jadi jauh lebih berwarna.",
+            "Karena sama kamu, aku ngerasa nemuin safe place baru di hidup aku.",
+            "Dedikasi dan kerja keras kamu pas lagi kerja di Palembang yang bikin aku bangga banget sama kamu.",
+            "Fokus dan kerennya kamu waktu lagi urus hal-hal teknis/IT di kantor.",
+            "Sifat kamu yang dewasa dan tenang dalam ngadepin masalah.",
+            "Cara kamu selalu berusaha jujur sama aku tentang perasaan dan batasan kamu.",
+            "Kamu sosok yang bertanggung jawab, baik sama pekerjaan maupun sama aku.",
+            "Sifat kamu yang gak neko-neko dan konsisten sama apa yang kamu ucapkan.",
+            "Cara kamu mengizinkan aku buat jadi diri aku sendiri (be myself) tanpa takut di-judge.",
+            "Mata kamu yang selalu kelihatan tulus di foto/video call.",
+            "Kamu yang selalu bikin aku ngerasa dihargai sebagai pasangan.",
+            "Sifat kamu yang enggak gampang menyerah dalam ngadepin hal sulit.",
+            "Cara kamu menyikapi perbedaan di antara kita dengan kepala dingin.",
+            "Sifat peka kamu yang kadang bikin aku kaget karena kamu tahu apa yang aku rasain.",
+            "Kesederhanaan kamu yang justru bikin kamu kelihatan makin spesial.",
+            "Rasa aman yang kamu kasih ke aku meskipun kita dipisahkan jarak yang jauh.",
+            "Ketenangan kamu yang selalu bisa meredam emosi atau rasa cemas aku.",
+            "Sifat pantang menyerah kamu pas lagi ngerjain hal yang sulit di tempat kerja.",
+            "Cara kamu memperlakukan aku dengan penuh rasa hormat.",
+            "Kamu selalu mau belajar dan memahami cara komunikasi kita biar makin baik.",
+            "Senyum kamu yang selalu sukses bikin hari aku jadi lebih terang.",
+            "Cara kamu berusaha menyisihkan waktu buat aku di tengah kesibukan kerja kamu.",
+            "Kejujuran kamu yang bikin aku selalu percaya penuh sama kamu.",
+            "Sifat sabar kamu yang luar biasa waktu nemenin aku lagi oversharing.",
+            "Rendah hati dan enggak pernah sombong atas apa yang kamu capai.",
+            "Cara kamu menjadi sosok yang bisa aku andalkan kapan pun.",
+            "Karena kamu adalah kombinasi sempurna dari sosok cowok yang pinter, sabar, dan hangat.",
+            "Komitmen kita buat selalu berusaha terbuka dan jujur satu sama lain.",
+            "Cara kamu selalu ngingetin dan ngebebasin aku buat nge-sampaikan kebutuhan aku.",
+            "Momen pas kita duduk bareng buat ngobrolin batasan dan cara komunikasi kita.",
+            "Karena setiap ada salah paham, kita selalu milih buat nyelesaiin bareng-bareng.",
+            "Cara kamu belajar buat lebih terbuka sama aku, sekecil apa pun itu.",
+            "Rasa dihargai pas kamu dengerin dan nanggapin semua cerita aku.",
+            "Cara kita saling mengoreksi tanpa harus saling menyakiti.",
+            "Momen pas kamu bilang \"be yourself\" yang bikin aku makin sayang sama kamu.",
+            "Karena sama kamu, aku belajar kalau hubungan yang sehat itu butuh usaha dua arah.",
+            "Cara kita nemuin jalan tengah tiap kali punya sudut pandang yang beda.",
+            "Penerimaan kamu sama sifat aku yang suka banyak cerita (oversharing).",
+            "Usaha kamu buat selalu ngabarin aku di sela-sela waktu luang kamu.",
+            "Karena kamu enggak pernah bikin aku merasa \"kebanyakan\" atau \"terlalu berlebihan\".",
+            "Suasana nyaman yang terbangun tiap kali kita lagi teleponan berdua.",
+            "Kematangan kamu dalam ngadepin rasa cemas atau rasa takut aku.",
+            "Rasa lega tiap kali selesai ngobrol deep talk sama kamu.",
+            "Keterbukaan kamu yang bikin aku makin yakin kalau kita bisa melewati LDR ini.",
+            "Cara kamu ngajarin aku buat lebih bersabar dan tenang.",
+            "Karena kamu selalu nanya kabar dan mastiin aku baik-baik saja.",
+            "Momen-momen lucu pas kita lagi ngobrolin hal yang random di game atau chat.",
+            "Dukungan kamu buat semua aktivitas dan perkuliahan aku di Yogya.",
+            "Cara kamu ngejaga komitmen kita meskipun banyak keterbatasan.",
+            "Ketulusan kamu yang kerasa banget walau cuma lewat tulisan chat.",
+            "Karena kamu enggak pernah ragu buat minta maaf kalau ada salah, begitu juga sebaliknya.",
+            "Cara kita selalu bisa bangkit dan makin erat setelah melewati masa-masa sulit.",
+            "Momen pas kita main game bareng dan saling kerja sama.",
+            "Suara ketawa kamu di Discord/telepon yang renyah dan bikin nagih.",
+            "Momen pas kamu ngalah atau ngebantu aku pas kita lagi mabar.",
+            "Cara kamu fokus sama game tapi tetep ingat sama aku.",
+            "Gaya bicara kamu yang khas dan selalu bikin aku rindu.",
+            "Stiker-stiker chat lucu yang biasa kamu kirim ke aku.",
+            "Momen pas kita merencanakan mau main game apa selanjutnya.",
+            "Panggilan-panggilan manis kita yang cuma kita berdua yang tahu.",
+            "Ekspresi kamu yang panik atau gemes pas lagi kalah main game.",
+            "Reaksi kamu tiap kali aku kasih surprise kecil kayak Fore Matcha & makanan kesukaanmu.",
+            "Kebiasaan-kebiasaan kecil kamu yang bikin aku senyum-senyum sendiri kalau ingat.",
+            "Momen pas kita saling nungguin jam kerja/kuliah selesai biar bisa ngobrol.",
+            "Momen pas kamu nemenin aku stay up atau ngerjain tugas secara virtual.",
+            "Kesiapan kamu buat selalu mendengarkan keluh kesah harian aku.",
+            "Karena sama kamu, hal simpel kayak cuma diam-diaman di telepon pun kerasa seru.",
+            "Harapan aku buat bisa segera ketemu langsung sama kamu pertama kali.",
+            "Bayangan betapa senangnya nanti pas kita bisa jalan-jalan bareng tanpa terhalang layar HP.",
+            "Rasa antusias aku buat menyusun rencana-rencana seru pas kita meeting nanti.",
+            "Karena kamu adalah orang yang pengen aku peluk erat-erat pas kita ketemu nanti.",
+            "Harapan buat bisa mampir ke Palembang dan ngeliat kota tempat kamu kerja secara langsung.",
+            "Keinginan aku buat nemenin kamu di setiap pencapaian karier kamu ke depan.",
+            "Rasa optimis aku kalau kita bisa lulus dari ujian LDR ini bareng-bareng.",
+            "Karena aku pengen terus jadi orang pertama yang ngucapin \"Selamat Ulang Tahun\" buat kamu setiap tahunnya.",
+            "Bayangan betapa indahnya masa depan kalau dijalani sama sosok se-bertanggung jawab kamu.",
+            "Keinginan buat masak/nyiapin makanan langsung buat kamu suatu hari nanti.",
+            "Harapan buat bisa foto berdua secara langsung, bukan cuma lewat avatar game atau editan.",
+            "Karena kamu bikin aku percaya kalau cinta jarak jauh itu bisa berhasil.",
+            "Keinginan buat terus mendukung semua impian dan cita-cita kamu.",
+            "Karena aku pengen jadi tempat pulang paling nyaman buat kamu pas kamu capek kerja.",
+            "Semua petualangan dan momen bahagia yang belum kita lewati tapi bakal kita capai bareng.",
+            "Janji aku buat selalu ada di samping kamu dalam keadaan suka maupun duka.",
+            "Karena kamu udah ngasih aku alasan buat jadi versi diri aku yang lebih baik.",
+            "Karena enggak ada orang lain yang bisa nggantiin posisi kamu di hati aku.",
+            "Karena aku sayang banget sama kamu, Agil, dengan semua kekurangan dan kelebihan kamu.",
+            "Dan alasan terakhir... karena kamu adalah Agil, cowok yang selalu berhasil bikin aku jatuh cinta setiap hari."
+        ];
+
+        // Populate Cards Grid
+        function populateGrid(id, start, end) {
+            const container = document.getElementById(id);
+            container.innerHTML = '';
+            for (let i = start; i < end && i < reasons.length; i++) {
+                const card = document.createElement('div');
+                card.className = 'reason-card';
+                card.innerHTML = `
+                    <div class="card-num">Reason #${i + 1}</div>
+                    <div class="card-txt">${reasons[i]}</div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        populateGrid('grid-1', 0, 35);
+        populateGrid('grid-2', 35, 70);
+        populateGrid('grid-3', 70, 100);
+
+        // Page State
+        let currentPage = 0;
+        const totalPages = 5;
+        let isEnvelopeOpened = false;
+
+        function updateNavigation() {
+            document.querySelectorAll('.page').forEach((p, idx) => {
+                p.classList.remove('active', 'turned');
+                if (idx === currentPage) p.classList.add('active');
+                else if (idx < currentPage) p.classList.add('turned');
+            });
+
+            document.getElementById('prevBtn').disabled = currentPage === 0;
+            document.getElementById('nextBtn').disabled = !isEnvelopeOpened || currentPage === totalPages - 1;
+            document.getElementById('pageIndicator').innerText = `Page ${currentPage + 1} of ${totalPages}`;
+        }
+
+        function changePage(dir) {
+            currentPage = Math.max(0, Math.min(totalPages - 1, currentPage + dir));
+            updateNavigation();
+        }
+
+        function openEnvelope(e) {
+            if (isEnvelopeOpened) return;
+            isEnvelopeOpened = true;
+
+            const envelope = document.getElementById('envelope');
+            envelope.classList.add('open');
+
+            // Burst Star Particles
+            const stars = ['✨', '⭐', '🌟', '💛'];
+            for (let i = 0; i < 30; i++) {
+                const star = document.createElement('div');
+                star.className = 'star-particle';
+                star.innerText = stars[Math.floor(Math.random() * stars.length)];
+                
+                const x = e.clientX || window.innerWidth / 2;
+                const y = e.clientY || window.innerHeight / 2;
+                
+                star.style.left = `${x}px`;
+                star.style.top = `${y}px`;
+                
+                const dx = (Math.random() - 0.5) * 350;
+                const dy = (Math.random() - 0.5) * 350 - 50;
+                
+                star.style.setProperty('--dx', `${dx}px`);
+                star.style.setProperty('--dy', `${dy}px`);
+                
+                document.body.appendChild(star);
+                setTimeout(() => star.remove(), 1200);
+            }
+
+            // Enable Next Button
+            setTimeout(() => {
+                document.getElementById('nextBtn').disabled = false;
+            }, 600);
+        }
+    </script>
+</body>
+</html>
